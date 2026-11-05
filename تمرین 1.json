@@ -1,0 +1,194 @@
+{
+  "name": "تمرین 1",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "ثبت درخواست دانشجویان",
+        "formDescription": "دانشجوی گرامی، اگر در دوره با مشکل فنی روبه‌رو شده‌اید یا به فایل‌های آموزشی نیاز دارید، این فرم را پر کنید. درخواست شما بررسی می‌شود و در کوتاه‌ترین زمان با شما تماس می‌گیریم.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "نام و نام خانوادگی",
+              "placeholder": "علی هاشمی",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "نوع درخواست :",
+              "fieldType": "radio",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "مشکل فنی"
+                  },
+                  {
+                    "option": "آموزشی"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "تو ضیح درخواست :",
+              "fieldType": "textarea",
+              "placeholder": "مشکل فنی مثل باز نشدن سایت / مشکل آموزشی مثل نامفهوم بودن درس و یا نیاز به تمرین بیشتر",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {
+          "appendAttribution": false,
+          "buttonLabel": "ثبت درخواست",
+          "respondWithOptions": {
+            "values": {
+              "formSubmittedText": "درخواست شما با موفقیت ثبت شد ✅ کارشناسان آموزشگاه آن را بررسی می‌کنند و حداکثر تا ۲۴ ساعت کاری آینده با شما تماس می‌گیرند. از صبر و همراهی شما سپاسگزاریم."
+            }
+          },
+          "customCss": ":root {\n\t--font-family: 'Open Sans', sans-serif;\n\t--font-weight-normal: 400;\n\t--font-weight-bold: 600;\n\t--font-size-body: 12px;\n\t--font-size-label: 14px;\n\t--font-size-test-notice: 12px;\n\t--font-size-input: 14px;\n\t--font-size-header: 20px;\n\t--font-size-paragraph: 14px;\n\t--font-size-link: 12px;\n\t--font-size-error: 12px;\n\t--font-size-html-h1: 28px;\n\t--font-size-html-h2: 20px;\n\t--font-size-html-h3: 16px;\n\t--font-size-html-h4: 14px;\n\t--font-size-html-h5: 12px;\n\t--font-size-html-h6: 10px;\n\t--font-size-subheader: 14px;\n\n\t/* Colors */\n\t--color-background: #fbfcfe;\n\t--color-test-notice-text: #e6a23d;\n\t--color-test-notice-bg: #fefaf6;\n\t--color-test-notice-border: #f6dcb7;\n\t--color-card-bg: #ffffff;\n\t--color-card-border: #dbdfe7;\n\t--color-card-shadow: rgba(99, 77, 255, 0.06);\n\t--color-link: #7e8186;\n\t--color-header: #525356;\n\t--color-label: #555555;\n\t--color-input-border: #dbdfe7;\n\t--color-input-text: #71747A;\n\t--color-focus-border: rgb(90, 76, 194);\n\t--color-submit-btn-bg: #ff6d5a;\n\t--color-submit-btn-text: #ffffff;\n\t--color-error: #ea1f30;\n\t--color-required: #ff6d5a;\n\t--color-clear-button-bg: #7e8186;\n\t--color-html-text: #555;\n\t--color-html-link: #ff6d5a;\n\t--color-header-subtext: #7e8186;\n\n\t/* Border Radii */\n\t--border-radius-card: 8px;\n\t--border-radius-input: 6px;\n\t--border-radius-clear-btn: 50%;\n\t--card-border-radius: 8px;\n\n\t/* Spacing */\n\t--padding-container-top: 24px;\n\t--padding-card: 24px;\n\t--padding-test-notice-vertical: 12px;\n\t--padding-test-notice-horizontal: 24px;\n\t--margin-bottom-card: 16px;\n\t--padding-form-input: 12px;\n\t--card-padding: 24px;\n\t--card-margin-bottom: 16px;\n\n\t/* Dimensions */\n\t--container-width: 448px;\n\t--submit-btn-height: 48px;\n\t--checkbox-size: 18px;\n\n\t/* Others */\n\t--box-shadow-card: 0px 4px 16px 0px var(--color-card-shadow);\n\t--opacity-placeholder: 0.5;\n}\nhtml, body, form, .container, .card, .form-group, label, .form-label, p, h1, h2, input, textarea, select, .select-input {\n  direction: rtl !important;\n  text-align: right !important;\n}\nlabel, .form-label {\n  display: block !important;\n  width: 100% !important;\n}\nbody, input, textarea, select, button {\n  font-family: Vazirmatn, Tahoma, sans-serif !important;\n}"
+        }
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        -496,
+        64
+      ],
+      "id": "7c9911c6-4e7d-4b61-b588-4aa4ba08fdbf",
+      "name": "On form submission",
+      "webhookId": "71d05948-0fa9-462f-9668-53cbe1fdde38"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "540376f1-5d6e-4178-adfb-2b34ec4d71c9",
+              "leftValue": "",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        -64,
+        64
+      ],
+      "id": "55df159d-99d0-465e-be69-28b6de0c08ff",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "990ffa7b-54e2-40b0-bcff-82cc7830dc2e",
+              "name": "نام و نام خانوادگی",
+              "value": "={{ $json['نام و نام خانوادگی'] }}",
+              "type": "string"
+            },
+            {
+              "id": "9dd7c778-de5f-4e73-bf2c-ee40f518a1d5",
+              "name": "نوع درخواست :",
+              "value": "={{ $json['نوع درخواست :'] }}",
+              "type": "string"
+            },
+            {
+              "id": "382dc3d9-8162-4254-a226-51177af88eed",
+              "name": "تو ضیح درخواست :",
+              "value": "={{ $json['تو ضیح درخواست :'] }}",
+              "type": "string"
+            },
+            {
+              "id": "7dfd0b66-841b-4b0d-8e7a-6bc09663658c",
+              "name": "submittedAt",
+              "value": "={{ $json.submittedAt }}",
+              "type": "string"
+            },
+            {
+              "id": "542ce9a1-d22f-4c61-a360-56bddd435c55",
+              "name": "formMode",
+              "value": "={{ $json.formMode }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        -320,
+        64
+      ],
+      "id": "bbee5e86-1f43-485a-a713-9d7d443f500f",
+      "name": "Edit Fields"
+    }
+  ],
+  "pinData": {
+    "On form submission": [
+      {
+        "json": {
+          "نام و نام خانوادگی": "مهسا حسنی",
+          "نوع درخواست :": "مشکل فنی",
+          "تو ضیح درخواست :": "مشکل در بالا امدن سایت اموزشی",
+          "submittedAt": "2026-11-02T20:37:13.184+03:30",
+          "formMode": "test"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "0fb8b25f-5939-412c-947d-0478a58c0943",
+  "meta": {
+    "instanceId": "470d356625d224db4996b994866d9cc0995593658c1381bc60a5a2a78993a693"
+  },
+  "nodeGroups": [],
+  "id": "llPMkSmRUr4nFBS8",
+  "tags": []
+}
