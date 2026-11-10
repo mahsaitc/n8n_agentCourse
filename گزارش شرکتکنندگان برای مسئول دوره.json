@@ -1,0 +1,136 @@
+{
+  "name": "گزارش شرکت‌کنندگان برای مسئول دوره",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -528,
+        48
+      ],
+      "id": "4f5ec08a-a037-4d4a-9d99-fb7592cafd4e",
+      "name": "Run Organizer Report"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1WzTY_L1N_v369D3BaEZJFMuIMHCDsSjlxADjDpQdWU4",
+          "mode": "list",
+          "cachedResultName": "event-registration",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WzTY_L1N_v369D3BaEZJFMuIMHCDsSjlxADjDpQdWU4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1673937468,
+          "mode": "list",
+          "cachedResultName": "ثبت‌نام‌ها",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WzTY_L1N_v369D3BaEZJFMuIMHCDsSjlxADjDpQdWU4/edit#gid=1673937468"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -320,
+        48
+      ],
+      "id": "8bcd5eea-ab3a-46b9-9949-0df5abcc4289",
+      "name": "Read Registration",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ado18jGScPlzdqXw",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const rows=$input.all().map(i=>i.json).filter(r=>r.registration_id);const groups={};\nfor(const r of rows)(groups[r.event_id]??=[]).push(r);\nreturn Object.entries(groups).map(([id,list])=>({json:{event_id:id,recipient:list[0].owner_email,subject:'فهرست شرکت‌کنندگان '+list[0].event_title,text:'تعداد: '+list.length+'\\nآنلاین: '+list.filter(r=>r.attendance_mode==='online').length+'\\nحضوری: '+list.filter(r=>r.attendance_mode==='in_person').length+'\\n\\n'+list.map(r=>[r.registration_id,r.full_name,r.email,r.department,r.attendance_mode].join(' | ')).join('\\n')}}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -96,
+        32
+      ],
+      "id": "df2666a5-ab86-4168-9571-d303c70ec099",
+      "name": "Group and Summarize Attendees"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.recipient }}",
+        "subject": "={{ $json.subject }}",
+        "emailType": "text",
+        "message": "={{ $json.text }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        128,
+        32
+      ],
+      "id": "809b5b22-bc30-4f25-b8ed-9ab2f703b37e",
+      "name": "Email Organizer Roster",
+      "webhookId": "23d965f3-15ed-4081-a4c8-6b8b24832021",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "X75mNpJpKSstqoI7",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Run Organizer Report": {
+      "main": [
+        [
+          {
+            "node": "Read Registration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Registration": {
+      "main": [
+        [
+          {
+            "node": "Group and Summarize Attendees",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Group and Summarize Attendees": {
+      "main": [
+        [
+          {
+            "node": "Email Organizer Roster",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "65ce36ac-4aae-4258-a38b-05d0b6525590",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8c9ede47b845c857073d183a5bab56d27c163bd53edc166a405cf44747b960aa"
+  },
+  "nodeGroups": [],
+  "id": "2dLukMCkKCELMB48",
+  "tags": []
+}

@@ -1,0 +1,133 @@
+{
+  "name": "خروجی CSV شرکت‌کنندگان",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -304,
+        48
+      ],
+      "id": "8481fc7a-5001-44e5-a20d-896610ec6e6d",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.all().filter(i=>i.json.registration_id).map(({json:r})=>({json:{registration_id:r.registration_id,event_id:r.event_id,full_name:r.full_name,email:r.email,department:r.department,attendance_mode:r.attendance_mode,status:r.status,created_at:r.created_at}}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        96,
+        48
+      ],
+      "id": "28d31547-d6a4-4f81-9667-bdb9f09ac0a5",
+      "name": "Select Public Roster Fields"
+    },
+    {
+      "parameters": {
+        "options": {
+          "fileName": "Participant.csv",
+          "headerRow": true
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.2,
+      "position": [
+        304,
+        48
+      ],
+      "id": "e32ba472-1fc0-4e22-b4d7-e595998bfa18",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1WzTY_L1N_v369D3BaEZJFMuIMHCDsSjlxADjDpQdWU4",
+          "mode": "list",
+          "cachedResultName": "event-registration",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WzTY_L1N_v369D3BaEZJFMuIMHCDsSjlxADjDpQdWU4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1673937468,
+          "mode": "list",
+          "cachedResultName": "ثبت‌نام‌ها",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WzTY_L1N_v369D3BaEZJFMuIMHCDsSjlxADjDpQdWU4/edit#gid=1673937468"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -96,
+        48
+      ],
+      "id": "3c895b71-5e5c-4f8c-8fb2-84395fb17929",
+      "name": "Read Participant Rows",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ado18jGScPlzdqXw",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Read Participant Rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Select Public Roster Fields": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        []
+      ]
+    },
+    "Read Participant Rows": {
+      "main": [
+        [
+          {
+            "node": "Select Public Roster Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "127c3f44-ec89-4af4-a83e-d764d0804103",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8c9ede47b845c857073d183a5bab56d27c163bd53edc166a405cf44747b960aa"
+  },
+  "nodeGroups": [],
+  "id": "LsAOXBctGa4sw7Uz",
+  "tags": []
+}

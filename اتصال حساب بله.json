@@ -1,0 +1,818 @@
+{
+  "name": "اتصال حساب بله",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "khanefanavari",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        288
+      ],
+      "id": "864f5fb5-8110-4e35-abe2-30d4181cbf67",
+      "name": "Webhook",
+      "webhookId": "c4b1dc61-6491-4b61-9af5-4e7617efb898"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -64
+      ],
+      "id": "cef18327-37e8-41e9-bc67-56a3aea81d72",
+      "name": "When clicking ‘Execute workflow’",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://tapi.bale.ai/bot666114243:bI55IgTTqf6ISEhlBU2UOkhO4TqtbjSHTJ0/setWebhook",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "https://hasanimahi.app.n8n.cloud/webhook-test/khanefanavari"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        224,
+        -64
+      ],
+      "id": "ebf4648b-fe17-4492-b219-22d996ef5c86",
+      "name": "HTTP Request",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Read the real Bale update, without assuming all providers wrap it identically.\nconst src = $input.first().json ?? {};\nlet update = src.body ?? src;\n\nif (typeof update === 'string') {\n  try { update = JSON.parse(update); } catch { update = {}; }\n}\nif (update?.body?.message && !update.message) update = update.body;\nif (update?.update?.message && !update.message) update = update.update;\nif (update?.data?.message && !update.message) update = update.data;\n\nconst message = update.message ?? update.edited_message ?? {};\nconst text = String(message.text ?? '')\n  .replace(/[\\u200B\\u200C\\u200D\\uFEFF]/g, '')\n  .trim();\n\n// Supported: /start TOKEN, /start@BotName TOKEN, TOKEN pasted by the user,\n// or a full ble.ir link pasted into the private chat.\nconst fromStart = text.match(/^\\/start(?:@[a-zA-Z0-9_]+)?\\s+([a-fA-F0-9]{24,128})$/);\nconst fromPlain = text.match(/^([a-fA-F0-9]{24,128})$/);\nconst fromLink = text.match(/^https?:\\/\\/(?:www\\.)?ble\\.ir\\/[^\\s?]+\\?start=([a-fA-F0-9]{24,128})(?:&[^\\s]*)?$/i);\nconst token = String((fromStart ?? fromPlain ?? fromLink)?.[1] ?? '').toLowerCase();\n\nconst chatId = message.chat?.id;\nconst senderId = message.from?.id;\nconst chatType = String(message.chat?.type ?? '').toLowerCase();\nconst hasChatId = chatId !== undefined && chatId !== null && String(chatId) !== '';\n\n// When Bale explicitly identifies a private chat, the chat.type is decisive.\n// Otherwise, infer private only if both IDs exist and match.\nconst isPrivate = chatType === 'private' ||\n  (!chatType && hasChatId && senderId !== undefined && senderId !== null &&\n   String(senderId) === String(chatId));\n\nlet reason = 'ok';\nif (!message || !message.chat) reason = 'missing_message_or_chat';\nelse if (!text) reason = 'missing_message_text';\nelse if (!token) reason = /^\\/start(?:\\s|@|$)/i.test(text)\n  ? 'start_missing_or_invalid_token'\n  : 'unexpected_command_or_token';\nelse if (!hasChatId) reason = 'missing_chat_id';\nelse if (!isPrivate) reason = 'chat_not_private';\n\nreturn [{ json: {\n  valid: reason === 'ok',\n  token,\n  chat_id: hasChatId ? String(chatId) : '',\n  reason,\n  diagnostics: {\n    chat_type: chatType || '(missing)',\n    has_start_command: /^\\/start(?:\\s|@|$)/i.test(text),\n    token_length: token.length,\n    sender_matches_chat: senderId != null && hasChatId\n      ? String(senderId) === String(chatId) : null,\n    has_message: !!message.chat,\n  },\n} }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        288
+      ],
+      "id": "488fbfe1-b8f8-409d-bfda-a1115275cef5",
+      "name": "Extract Private Start"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "20882153-3722-4e9b-a924-e201fc4985fc",
+              "leftValue": "={{ $json.valid }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        448,
+        288
+      ],
+      "id": "1d174fea-b7a9-426b-8598-263300835b3a",
+      "name": "Valid Link Request"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1WzTY_L1N_v369D3BaEZJFMuIMHCDsSjlxADjDpQdWU4",
+          "mode": "list",
+          "cachedResultName": "event-registration",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WzTY_L1N_v369D3BaEZJFMuIMHCDsSjlxADjDpQdWU4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1673937468,
+          "mode": "list",
+          "cachedResultName": "ثبت‌نام‌ها",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WzTY_L1N_v369D3BaEZJFMuIMHCDsSjlxADjDpQdWU4/edit#gid=1673937468"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "link_token",
+              "lookupValue": "={{ $json.token }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        672,
+        208
+      ],
+      "id": "68037d68-0029-467d-93de-40586fce81e7",
+      "name": "Find Link Token",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "BYHSvFbTCAJ60dL4",
+          "name": "mahsaitc74"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $('Extract Private Start').first().json;\nconst token = String(input.token ?? '').trim().toLowerCase();\nconst rows = $input.all().map(i => i.json);\nconst row = rows.find(r =>\n  String(r.link_token ?? '').trim().toLowerCase() === token\n);\n\nconst usedValue = String(row?.link_token_used ?? '').trim().toLowerCase();\nconst used = !['', 'false', '0', 'no'].includes(usedValue);\nconst expiry = Date.parse(String(row?.link_expires_at ?? ''));\n\nlet reason = 'ok';\nif (!row) reason = 'token_not_found_in_registrations';\nelse if (used) reason = 'token_already_used';\nelse if (!Number.isFinite(expiry)) reason = 'invalid_expiration_date';\nelse if (expiry <= Date.now()) reason = 'token_expired';\n\nreturn [{ json: {\n  valid: reason === 'ok',\n  reason,\n  registration_id: row?.registration_id || '',\n  chat_id: input.chat_id,\n  token_expires_at: row?.link_expires_at || '',\n} }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        896,
+        208
+      ],
+      "id": "aa319691-5546-48b3-a133-9b241f3395c4",
+      "name": "Validate Token Lifetime"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1WzTY_L1N_v369D3BaEZJFMuIMHCDsSjlxADjDpQdWU4",
+          "mode": "list",
+          "cachedResultName": "event-registration",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WzTY_L1N_v369D3BaEZJFMuIMHCDsSjlxADjDpQdWU4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1673937468,
+          "mode": "list",
+          "cachedResultName": "ثبت‌نام‌ها",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WzTY_L1N_v369D3BaEZJFMuIMHCDsSjlxADjDpQdWU4/edit#gid=1673937468"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "registration_id"
+          ],
+          "schema": [
+            {
+              "id": "registration_id",
+              "displayName": "registration_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "registration_key",
+              "displayName": "registration_key",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "event_id",
+              "displayName": "event_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "full_name",
+              "displayName": "full_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "department",
+              "displayName": "department",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "attendance_mode",
+              "displayName": "attendance_mode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "special_needs",
+              "displayName": "special_needs",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "destination",
+              "displayName": "destination",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "access_info",
+              "displayName": "access_info",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "source",
+              "displayName": "source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "link_token",
+              "displayName": "link_token",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "link_expires_at",
+              "displayName": "link_expires_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "link_token_used",
+              "displayName": "link_token_used",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "bale_chat_id",
+              "displayName": "bale_chat_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "event_title",
+              "displayName": "event_title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "event_date",
+              "displayName": "event_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "owner_email",
+              "displayName": "owner_email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "owner_bale_chat_id",
+              "displayName": "owner_bale_chat_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "bale_bot_username",
+              "displayName": "bale_bot_username",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1568,
+        160
+      ],
+      "id": "e4502e12-1e92-4846-b5a5-af32e03a66a2",
+      "name": "Saved Link Account",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "BYHSvFbTCAJ60dL4",
+          "name": "mahsaitc74"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const r=$('Link Account Row').first().json;return [{json:{job_id:r.registration_id+':attendee:bale',recipient:r.bale_chat_id,status:'pending',updated_at:$now.setZone('Asia/Tehran').toISO()}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1792,
+        160
+      ],
+      "id": "50f162ea-c0db-4a5d-b3c8-a298952b4a7b",
+      "name": "Release Attendee Bale Job"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "e2179012-c4c7-45a0-bfa3-d555eedff916",
+              "leftValue": "={{ $json.valid }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        1120,
+        208
+      ],
+      "id": "a5b8366e-d9b4-420f-8fef-15546d9a8c6c",
+      "name": "Unused Valid Token"
+    },
+    {
+      "parameters": {
+        "jsCode": "const r=$input.first().json;return [{json:{registration_id:r.registration_id,bale_chat_id:r.chat_id,link_token_used:new Date().toISOString()}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1344,
+        160
+      ],
+      "id": "5f3190df-544c-4b1e-98cf-2555800c235d",
+      "name": "Link Account Row"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1WzTY_L1N_v369D3BaEZJFMuIMHCDsSjlxADjDpQdWU4",
+          "mode": "list",
+          "cachedResultName": "event-registration",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WzTY_L1N_v369D3BaEZJFMuIMHCDsSjlxADjDpQdWU4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 196493020,
+          "mode": "list",
+          "cachedResultName": "اعلان‌ها",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WzTY_L1N_v369D3BaEZJFMuIMHCDsSjlxADjDpQdWU4/edit#gid=196493020"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "job_id"
+          ],
+          "schema": [
+            {
+              "id": "job_id",
+              "displayName": "job_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "registration_id",
+              "displayName": "registration_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "role",
+              "displayName": "role",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "channel",
+              "displayName": "channel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "recipient",
+              "displayName": "recipient",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "subject",
+              "displayName": "subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "text",
+              "displayName": "text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "last_error",
+              "displayName": "last_error",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2016,
+        160
+      ],
+      "id": "267066d4-fce5-4556-b057-ec3b60c89711",
+      "name": "Make Bale Job Sendable",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "BYHSvFbTCAJ60dL4",
+          "name": "mahsaitc74"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1344,
+        384
+      ],
+      "id": "f48548ee-fc17-41d4-bd34-fb2c9bfcdb52",
+      "name": "No Operation, do nothing"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Extract Private Start",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Private Start": {
+      "main": [
+        [
+          {
+            "node": "Valid Link Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Valid Link Request": {
+      "main": [
+        [
+          {
+            "node": "Find Link Token",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Link Token": {
+      "main": [
+        [
+          {
+            "node": "Validate Token Lifetime",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Token Lifetime": {
+      "main": [
+        [
+          {
+            "node": "Unused Valid Token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Saved Link Account": {
+      "main": [
+        [
+          {
+            "node": "Release Attendee Bale Job",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Release Attendee Bale Job": {
+      "main": [
+        [
+          {
+            "node": "Make Bale Job Sendable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Unused Valid Token": {
+      "main": [
+        [
+          {
+            "node": "Link Account Row",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Link Account Row": {
+      "main": [
+        [
+          {
+            "node": "Saved Link Account",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Make Bale Job Sendable": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "b9b00f5a-9891-4d37-822e-d386ea5a92f5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8c9ede47b845c857073d183a5bab56d27c163bd53edc166a405cf44747b960aa"
+  },
+  "nodeGroups": [],
+  "id": "YImEqq5J1wCHDxaW",
+  "tags": []
+}

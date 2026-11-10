@@ -1,0 +1,1119 @@
+{
+  "name": "فرم ثبت نام کلاس اموزشی",
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "const src=$input.first().json;\nconst portal=!!src.body; const r=portal?src.body:src;\nconst clean=v=>typeof v==='string'?v.trim():'';\nconst email=clean(r.email).toLowerCase();\nconst mode=({'آنلاین':'online','حضوری':'in_person',online:'online',in_person:'in_person'})[clean(r.attendance_mode)]||'';\nconst data={full_name:clean(r.full_name),email,department:clean(r.department),event_id:clean(r.event_id).toUpperCase(),attendance_mode:mode,special_needs:clean(r.special_needs)};\nconst errors=[];\nfor(const key of ['full_name','email','department','event_id'])if(!data[key])errors.push(key+' الزامی است');\nif(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email))errors.push('قالب ایمیل معتبر نیست');\nif(!mode)errors.push('نحوه شرکت معتبر نیست');\nreturn [{json:{data,source:portal?'portal':'form',valid:errors.length===0,errors,registration_key:data.event_id+'|'+email}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        288
+      ],
+      "id": "54a5dd5c-6a78-4b04-a9f5-d824485cb0b8",
+      "name": "Normalize Inputs"
+    },
+    {
+      "parameters": {
+        "formTitle": "ثبت نام رویداد اموزشی",
+        "formDescription": "لطفا اطلاعات خود را وارد کنید:",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "نام و نام خانوادگی",
+              "fieldName": "full_name",
+              "placeholder": "مثال : علی احمدی",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "ایمیل",
+              "fieldType": "email",
+              "fieldName": "email",
+              "defaultValue": "name@example.com",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "واحد سازمانی",
+              "fieldName": "department",
+              "placeholder": "مثال :خانه فناوری تهران",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "شناسه دوره",
+              "fieldName": "event_id",
+              "placeholder": "EVENT-001",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "نحوه شرکت",
+              "fieldType": "dropdown",
+              "fieldName": "attendance_mode",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "آنلاین"
+                  },
+                  {
+                    "option": "حضوری"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "توضیحات",
+              "fieldType": "textarea",
+              "fieldName": "special_needs"
+            }
+          ]
+        },
+        "options": {
+          "appendAttribution": false,
+          "buttonLabel": "ثبت نام",
+          "path": "event-n8n",
+          "ignoreBots": true,
+          "customCss": "body { direction: rtl; text-align: right; font-family: Tahoma, Arial, sans-serif; background: #f3f6fa; } .form-container { text-align: right; } input, select, textarea, button { font-family: inherit; } input[type=email] { direction: ltr; text-align: left; }"
+        }
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        0,
+        288
+      ],
+      "id": "0708ba6a-808e-4472-a9ea-1a4cfce6b20c",
+      "name": "Organization Registration Form",
+      "webhookId": "7c435810-3952-4d12-92de-34449d6be11a"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input=$('Normalize Inputs').first().json; const rows=$input.all().map(i=>i.json).filter(r=>r.event_id);\nconst event=rows.find(r=>String(r.event_id).toUpperCase()===input.data.event_id);\nlet reason='';if(!event)reason='رویداد پیدا نشد';else if(String(event.registration_open).toLowerCase()!=='true')reason='ثبت‌نام این رویداد بسته است';\nelse if(!String(event.allowed_modes).split(',').map(v=>v.trim()).includes(input.data.attendance_mode))reason='شیوه شرکت برای این رویداد مجاز نیست';\nreturn [{json:{...input,event:event||{},eligible:!reason,reason}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        896,
+        192
+      ],
+      "id": "2b98bf47-c6d8-4878-87c4-04b20cd9a7bb",
+      "name": "Enrich and Check Event"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "d48a5932-d741-498c-8439-f00a62f2ea7e",
+              "leftValue": "={{ $json.eligible }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        1120,
+        192
+      ],
+      "id": "88d08962-4e6e-4575-82ef-08166ed56f9f",
+      "name": "Event Accepts Registration"
+    },
+    {
+      "parameters": {
+        "action": "generate",
+        "dataPropertyName": "link_token",
+        "encodingType": "hex",
+        "stringLength": 42
+      },
+      "type": "n8n-nodes-base.crypto",
+      "typeVersion": 2,
+      "position": [
+        2016,
+        0
+      ],
+      "id": "a4dc5fd5-8e17-4c6e-93ce-9280bc481921",
+      "name": "GEN LINK TOKEN"
+    },
+    {
+      "parameters": {
+        "jsCode": "const r=$input.first().json;const d=r.data;const e=r.event;const now=new Date();\nconst access=d.attendance_mode==='online'?e.online_url:e.venue;\nif(!access)throw new Error('اطلاعات ورود/محل رویداد در Events کامل نیست');\nif(!e.owner_email||!e.owner_bale_chat_id||!e.bale_bot_username)throw new Error('مقصد اعلان مسئول یا نام بازوی بله در Events کامل نیست');\nreturn [{json:{registration_id:'REG-'+$execution.id,registration_key:r.registration_key,event_id:d.event_id,full_name:d.full_name,email:d.email,department:d.department,attendance_mode:d.attendance_mode,special_needs:d.special_needs,status:'confirmed',priority:d.special_needs?'P2':'P3',destination:e.owner_email,access_info:access,created_at:now.toISOString(),source:r.source,link_token:r.link_token,link_expires_at:new Date(now.getTime()+24*3600000).toISOString(),link_token_used:'',bale_chat_id:'',event_title:e.title,event_date:e.event_date,owner_email:e.owner_email,owner_bale_chat_id:String(e.owner_bale_chat_id),bale_bot_username:e.bale_bot_username}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2240,
+        0
+      ],
+      "id": "c0f1452c-9d8f-492e-a75a-15fc825393e9",
+      "name": "Build Registration Record"
+    },
+    {
+      "parameters": {
+        "jsCode": "const base=$('Enrich and Check Event').first().json; const old=$input.all().map(i=>i.json).find(r=>r.registration_key===base.registration_key);return [{json:{...base,duplicate:!!old,existing_id:old?.registration_id||''}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1568,
+        96
+      ],
+      "id": "9a7e8549-b17e-47ec-b24c-52f639936683",
+      "name": "Check Duplicate"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1WzTY_L1N_v369D3BaEZJFMuIMHCDsSjlxADjDpQdWU4",
+          "mode": "list",
+          "cachedResultName": "event-registration",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WzTY_L1N_v369D3BaEZJFMuIMHCDsSjlxADjDpQdWU4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1673937468,
+          "mode": "list",
+          "cachedResultName": "ثبت‌نام‌ها",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WzTY_L1N_v369D3BaEZJFMuIMHCDsSjlxADjDpQdWU4/edit#gid=1673937468"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "registration_key",
+              "lookupValue": "={{ $json.registration_key }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1344,
+        96
+      ],
+      "id": "f146b476-a205-4491-acb1-ea60e3b0a5b1",
+      "name": "Find Existing Registration",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "BYHSvFbTCAJ60dL4",
+          "name": "mahsaitc74"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "2ce7f439-cf23-4a64-bf27-f2cdd9f8bb2f",
+              "leftValue": "={{ !$json.duplicate }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        1792,
+        96
+      ],
+      "id": "498137b0-be53-4a0a-8ca9-dc54dd6d0ee2",
+      "name": "New Registration"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "71828165-639d-402c-9caa-5755dd7753cc",
+              "leftValue": "={{ $json.valid }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        448,
+        288
+      ],
+      "id": "ce9ceb88-396a-4a6d-bfe1-d68df7bf2d2b",
+      "name": "Valid Input"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1WzTY_L1N_v369D3BaEZJFMuIMHCDsSjlxADjDpQdWU4",
+          "mode": "list",
+          "cachedResultName": "event-registration",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WzTY_L1N_v369D3BaEZJFMuIMHCDsSjlxADjDpQdWU4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1778185859,
+          "mode": "list",
+          "cachedResultName": "دوره‌ها",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WzTY_L1N_v369D3BaEZJFMuIMHCDsSjlxADjDpQdWU4/edit#gid=1778185859"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "event_id",
+              "lookupValue": "={{ $json.data.event_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        672,
+        192
+      ],
+      "id": "781e2f7a-5672-4b2b-b6c2-aac07df9210f",
+      "name": "Read Event Catalog",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "BYHSvFbTCAJ60dL4",
+          "name": "mahsaitc74"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const r=$('Build Registration Record').first().json;\nconst link='https://ble.ir/'+r.bale_bot_username+'?start='+r.link_token;\nconst attendee='سلام '+r.full_name+'؛ ثبت‌نام شما در '+r.event_title+' تأیید شد.\\nشماره پیگیری: '+r.registration_id+'\\nزمان: '+r.event_date+'\\nنحوه شرکت: '+r.attendance_mode+'\\nاطلاعات ورود/محل: '+r.access_info+'\\nبرای دریافت تأیید در بله، این لینک را باز کنید: '+link;\nconst admin='ثبت‌نام جدید: '+r.full_name+'\\nدوره: '+r.event_title+'\\nایمیل: '+r.email+'\\nواحد: '+r.department+'\\nنحوه شرکت: '+r.attendance_mode+'\\nاولویت بررسی: '+r.priority+'\\nنیاز ویژه: '+(r.special_needs||'ندارد')+'\\nشماره: '+r.registration_id;\nconst list=[['attendee','email',r.email,attendee,'pending'],['owner','email',r.owner_email,admin,'pending'],['owner','bale',r.owner_bale_chat_id,admin,'pending'],['attendee','bale','',attendee.split('\\nبرای دریافت')[0],'waiting_link']];\nreturn list.map(([role,channel,recipient,text,status])=>({json:{job_id:r.registration_id+':'+role+':'+channel,registration_id:r.registration_id,role,channel,recipient,subject:'ثبت‌نام '+r.event_title,text,status,last_error:'',updated_at:new Date().toISOString()}}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2688,
+        0
+      ],
+      "id": "a7449999-6fd5-4a36-ac35-6736abed6587",
+      "name": "Build Four Notification Jobs"
+    },
+    {
+      "parameters": {
+        "jsCode": "const r=$('Build Registration Record').first().json;return [{json:{source:r.source,code:201,status:'confirmed',registration_id:r.registration_id,message:'ثبت‌نام انجام شد. پیام‌ها در صف ارسال هستند؛ اتصال بله از طریق لینک ایمیل انجام می‌شود.'}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3136,
+        0
+      ],
+      "id": "f339b032-f68a-412b-a3a3-0a48282ecd53",
+      "name": "Registered Result"
+    },
+    {
+      "parameters": {
+        "jsCode": "const r=$input.first().json;return [{json:{source:r.source,code:200,status:'already_registered',registration_id:r.existing_id,message:'قبلاً در این رویداد ثبت‌نام کرده‌اید؛ ثبت‌نام یا اعلان تازه ایجاد نشد.'}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3136,
+        192
+      ],
+      "id": "b8668cd5-37ad-4c1f-ba14-d071b69bc6cc",
+      "name": "Duplicate Result"
+    },
+    {
+      "parameters": {
+        "jsCode": "const r=$input.first().json;return [{json:{source:r.source,code:400,status:'not_eligible',message:r.reason}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3136,
+        384
+      ],
+      "id": "9148198b-90a4-409a-a999-bace823f479f",
+      "name": "Closed Event Result"
+    },
+    {
+      "parameters": {
+        "jsCode": "const r=$input.first().json;return [{json:{source:r.source,code:400,status:'invalid_input',message:r.errors.join('؛ ')}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3136,
+        576
+      ],
+      "id": "d350f484-ce2c-447c-b6ad-46a797f250a9",
+      "name": "Invalid Input Result"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "b6e81e7f-5db4-46eb-81a3-33068eba3b14",
+              "leftValue": "={{ $json.source === \"form\" }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        3360,
+        288
+      ],
+      "id": "37f29e99-d1bc-49c1-b503-c66c99102694",
+      "name": "Reply"
+    },
+    {
+      "parameters": {
+        "operation": "completion",
+        "completionTitle": "نتیجه ثبت نام",
+        "completionMessage": "={{ $json.message + ($json.registration_id ? \" شماره پیگیری: \" + $json.registration_id : \"\") }}",
+        "options": {
+          "customCss": "body { direction: rtl; text-align: right; font-family: Tahoma, Arial, sans-serif; background: #f3f6fa; } .form-container { text-align: right; } input, select, textarea, button { font-family: inherit; } input[type=email] { direction: ltr; text-align: left; }"
+        }
+      },
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 2.5,
+      "position": [
+        3584,
+        288
+      ],
+      "id": "722f0a7c-00b2-43a4-8da0-878c913d96d7",
+      "name": "Form Completion",
+      "webhookId": "503dcc2f-f865-4532-bc9b-4caebbb0ab61"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1WzTY_L1N_v369D3BaEZJFMuIMHCDsSjlxADjDpQdWU4",
+          "mode": "list",
+          "cachedResultName": "event-registration",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WzTY_L1N_v369D3BaEZJFMuIMHCDsSjlxADjDpQdWU4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1673937468,
+          "mode": "list",
+          "cachedResultName": "ثبت‌نام‌ها",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WzTY_L1N_v369D3BaEZJFMuIMHCDsSjlxADjDpQdWU4/edit#gid=1673937468"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "registration_key"
+          ],
+          "schema": [
+            {
+              "id": "registration_id",
+              "displayName": "registration_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "registration_key",
+              "displayName": "registration_key",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "event_id",
+              "displayName": "event_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "full_name",
+              "displayName": "full_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "department",
+              "displayName": "department",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "attendance_mode",
+              "displayName": "attendance_mode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "special_needs",
+              "displayName": "special_needs",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "destination",
+              "displayName": "destination",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "access_info",
+              "displayName": "access_info",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "source",
+              "displayName": "source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "link_token",
+              "displayName": "link_token",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "link_expires_at",
+              "displayName": "link_expires_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "link_token_used",
+              "displayName": "link_token_used",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "bale_chat_id",
+              "displayName": "bale_chat_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "event_title",
+              "displayName": "event_title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "event_date",
+              "displayName": "event_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "owner_email",
+              "displayName": "owner_email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "owner_bale_chat_id",
+              "displayName": "owner_bale_chat_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "bale_bot_username",
+              "displayName": "bale_bot_username",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "cellFormat": "RAW"
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2464,
+        0
+      ],
+      "id": "2a628fe9-a577-4ade-bfd4-6c8d1e9d4372",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "BYHSvFbTCAJ60dL4",
+          "name": "mahsaitc74"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1WzTY_L1N_v369D3BaEZJFMuIMHCDsSjlxADjDpQdWU4",
+          "mode": "list",
+          "cachedResultName": "event-registration",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WzTY_L1N_v369D3BaEZJFMuIMHCDsSjlxADjDpQdWU4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 196493020,
+          "mode": "list",
+          "cachedResultName": "اعلان‌ها",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WzTY_L1N_v369D3BaEZJFMuIMHCDsSjlxADjDpQdWU4/edit#gid=196493020"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "job_id"
+          ],
+          "schema": [
+            {
+              "id": "job_id",
+              "displayName": "job_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "registration_id",
+              "displayName": "registration_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "role",
+              "displayName": "role",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "channel",
+              "displayName": "channel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "recipient",
+              "displayName": "recipient",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "subject",
+              "displayName": "subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "text",
+              "displayName": "text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "last_error",
+              "displayName": "last_error",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "cellFormat": "RAW"
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2912,
+        0
+      ],
+      "id": "4411c54f-b39a-4307-a305-a85e3ef1a0d2",
+      "name": "Append or update row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "BYHSvFbTCAJ60dL4",
+          "name": "mahsaitc74"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Normalize Inputs": {
+      "main": [
+        [
+          {
+            "node": "Valid Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Organization Registration Form": {
+      "main": [
+        [
+          {
+            "node": "Normalize Inputs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enrich and Check Event": {
+      "main": [
+        [
+          {
+            "node": "Event Accepts Registration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Event Accepts Registration": {
+      "main": [
+        [
+          {
+            "node": "Find Existing Registration",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Closed Event Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GEN LINK TOKEN": {
+      "main": [
+        [
+          {
+            "node": "Build Registration Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Registration Record": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Duplicate": {
+      "main": [
+        [
+          {
+            "node": "New Registration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Existing Registration": {
+      "main": [
+        [
+          {
+            "node": "Check Duplicate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "New Registration": {
+      "main": [
+        [
+          {
+            "node": "GEN LINK TOKEN",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Duplicate Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Valid Input": {
+      "main": [
+        [
+          {
+            "node": "Read Event Catalog",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Invalid Input Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Event Catalog": {
+      "main": [
+        [
+          {
+            "node": "Enrich and Check Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Four Notification Jobs": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Registered Result": {
+      "main": [
+        [
+          {
+            "node": "Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Duplicate Result": {
+      "main": [
+        [
+          {
+            "node": "Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Closed Event Result": {
+      "main": [
+        [
+          {
+            "node": "Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Invalid Input Result": {
+      "main": [
+        [
+          {
+            "node": "Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reply": {
+      "main": [
+        [
+          {
+            "node": "Form Completion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Build Four Notification Jobs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Registered Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "97651942-8767-440f-ab3a-3ef029450223",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8c9ede47b845c857073d183a5bab56d27c163bd53edc166a405cf44747b960aa"
+  },
+  "nodeGroups": [],
+  "id": "JjTxTrUqpW2jMzT1",
+  "tags": []
+}

@@ -1,0 +1,667 @@
+{
+  "name": "ارسال اعلانها",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -288,
+        192
+      ],
+      "id": "de6705ae-8d39-4b51-996e-f10150daae9d",
+      "name": "Run sender manually"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1WzTY_L1N_v369D3BaEZJFMuIMHCDsSjlxADjDpQdWU4",
+          "mode": "list",
+          "cachedResultName": "event-registration",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WzTY_L1N_v369D3BaEZJFMuIMHCDsSjlxADjDpQdWU4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 196493020,
+          "mode": "list",
+          "cachedResultName": "اعلان‌ها",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WzTY_L1N_v369D3BaEZJFMuIMHCDsSjlxADjDpQdWU4/edit#gid=196493020"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "status",
+              "lookupValue": "pending"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -64,
+        192
+      ],
+      "id": "d034acc9-9b64-4693-bac3-30cab3bc97de",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ado18jGScPlzdqXw",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.all().filter(i=>i.json.job_id&&i.json.recipient&&i.json.status==='pending');"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        160,
+        192
+      ],
+      "id": "f76c87d1-91d2-4950-9a8b-05d50b3ada95",
+      "name": "Pending Jobs Only"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        384,
+        192
+      ],
+      "id": "87b92cfe-ed23-45f1-83c6-1da5e671b348",
+      "name": "On Job at a Time"
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.all().map(i=>({json:{...i.json,status:'sending',updated_at:new Date().toISOString()}}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        608,
+        192
+      ],
+      "id": "b78a4ca7-a365-4c79-a11a-b8dd258ee52a",
+      "name": "Mark Sending",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1WzTY_L1N_v369D3BaEZJFMuIMHCDsSjlxADjDpQdWU4",
+          "mode": "list",
+          "cachedResultName": "event-registration",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WzTY_L1N_v369D3BaEZJFMuIMHCDsSjlxADjDpQdWU4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 196493020,
+          "mode": "list",
+          "cachedResultName": "اعلان‌ها",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WzTY_L1N_v369D3BaEZJFMuIMHCDsSjlxADjDpQdWU4/edit#gid=196493020"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "job_id"
+          ],
+          "schema": [
+            {
+              "id": "job_id",
+              "displayName": "job_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "registration_id",
+              "displayName": "registration_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "role",
+              "displayName": "role",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "channel",
+              "displayName": "channel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "recipient",
+              "displayName": "recipient",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "subject",
+              "displayName": "subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "text",
+              "displayName": "text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "last_error",
+              "displayName": "last_error",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        832,
+        192
+      ],
+      "id": "eff9f777-8356-4300-b8e5-14ce62eec7e5",
+      "name": "Save Registration",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ado18jGScPlzdqXw",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const job=$('Mark Sending').item.json;const response=$input.first().json;const err=response.error;return [{json:{...job,status:err?'unknown':'sent',last_error:err?JSON.stringify(err):'',updated_at:new Date().toISOString()}}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1504,
+        192
+      ],
+      "id": "f32c4a1c-6b1b-4c3b-8a8a-39687934949a",
+      "name": "Record Provider Outcome"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.recipient }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1280,
+        288
+      ],
+      "id": "5769ed38-f592-4611-9103-d42476296b97",
+      "name": "Send Bale Message",
+      "webhookId": "be9b6eba-d3ff-4faf-b060-2fbf2e9aab09",
+      "credentials": {
+        "telegramApi": {
+          "id": "XSVaaWgtWpVMDgIv",
+          "name": "Unnamed credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "262aa77f-af90-428a-8b89-28887755a1a6",
+              "leftValue": "={{ $json.channel === \"email\" }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        1056,
+        192
+      ],
+      "id": "c9cafba0-ab86-4c9c-bbde-e5d8ca7f5e14",
+      "name": "Email Channel"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.recipient }}",
+        "subject": "={{ $json.subject }}",
+        "emailType": "text",
+        "message": "={{ $json.text }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1280,
+        96
+      ],
+      "id": "a7d4ce9a-6123-4c66-b9fb-b81f6574ef37",
+      "name": "Send Email",
+      "webhookId": "53e69f36-afba-4c39-9be6-92d97fddd489",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "X75mNpJpKSstqoI7",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1WzTY_L1N_v369D3BaEZJFMuIMHCDsSjlxADjDpQdWU4",
+          "mode": "list",
+          "cachedResultName": "event-registration",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WzTY_L1N_v369D3BaEZJFMuIMHCDsSjlxADjDpQdWU4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 196493020,
+          "mode": "list",
+          "cachedResultName": "اعلان‌ها",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WzTY_L1N_v369D3BaEZJFMuIMHCDsSjlxADjDpQdWU4/edit#gid=196493020"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "job_id"
+          ],
+          "schema": [
+            {
+              "id": "job_id",
+              "displayName": "job_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "registration_id",
+              "displayName": "registration_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "role",
+              "displayName": "role",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "channel",
+              "displayName": "channel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "recipient",
+              "displayName": "recipient",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "subject",
+              "displayName": "subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "text",
+              "displayName": "text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "last_error",
+              "displayName": "last_error",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1728,
+        272
+      ],
+      "id": "1a1acc07-a331-42a0-8dba-f3c893489225",
+      "name": "Persist Outcome",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ado18jGScPlzdqXw",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        608,
+        0
+      ],
+      "id": "cea7adf6-11f9-4365-b012-968dcc979221",
+      "name": "No Operation, do nothing"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Run sender manually": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Pending Jobs Only",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pending Jobs Only": {
+      "main": [
+        [
+          {
+            "node": "On Job at a Time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On Job at a Time": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark Sending",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Sending": {
+      "main": [
+        [
+          {
+            "node": "Save Registration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Registration": {
+      "main": [
+        [
+          {
+            "node": "Email Channel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Bale Message": {
+      "main": [
+        [
+          {
+            "node": "Record Provider Outcome",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Channel": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Bale Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email": {
+      "main": [
+        [
+          {
+            "node": "Record Provider Outcome",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Record Provider Outcome": {
+      "main": [
+        [
+          {
+            "node": "Persist Outcome",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Persist Outcome": {
+      "main": [
+        [
+          {
+            "node": "On Job at a Time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "d107b8d0-8ad2-4ac3-ad11-74d4918b162c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8c9ede47b845c857073d183a5bab56d27c163bd53edc166a405cf44747b960aa"
+  },
+  "nodeGroups": [],
+  "id": "56rcIHtCMbL9M1EE",
+  "tags": []
+}
