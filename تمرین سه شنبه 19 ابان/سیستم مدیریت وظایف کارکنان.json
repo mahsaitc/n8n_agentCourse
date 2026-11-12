@@ -1,0 +1,163 @@
+{
+  "name": "سیستم مدیریت وظایف کارکنان",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -368,
+        32
+      ],
+      "id": "0f093d5e-2c54-4377-83d4-1f52825a6a96",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://dummyjson.com/todos",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -208,
+        32
+      ],
+      "id": "214b17b4-cd18-4d64-9847-e8692d189b20",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "todos",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1.1,
+      "position": [
+        -48,
+        32
+      ],
+      "id": "602d69bb-c2ca-4936-8a14-4409366c3dac",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "d0a0ce7d-6a3e-4c97-a0ce-4bdaf2d7ac48",
+              "leftValue": "={{ $json.completed }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.4,
+      "position": [
+        112,
+        32
+      ],
+      "id": "c8698f20-54d3-45f8-8ff0-fa5a81c7f9d2",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "chatId": "-1004350235128",
+        "text": "=وظایف تکمیل نشده: \n{{ $json.id }}\n{{ $json.todo }}\n{{ $json.userId }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        288,
+        32
+      ],
+      "id": "00f60e33-95a9-4240-8810-4634f5baff83",
+      "name": "Send a text message",
+      "webhookId": "da565aaa-07ca-4421-915f-da85810a148e",
+      "credentials": {
+        "telegramApi": {
+          "id": "YDoKWSgBjplstbp5",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "c0e8dd1a-551c-4cd8-b03f-7e9acea23881",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8c9ede47b845c857073d183a5bab56d27c163bd53edc166a405cf44747b960aa"
+  },
+  "nodeGroups": [],
+  "id": "xf01LLpnJZkYTVYo",
+  "tags": []
+}

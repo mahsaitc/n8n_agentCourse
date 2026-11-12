@@ -1,0 +1,206 @@
+{
+  "name": "سناریو 2 تامین موجودی فروشگاه",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -448,
+        -96
+      ],
+      "id": "92130dc6-5e62-4ee2-b3b6-14251e136d87",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://dummyjson.com/products",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -256,
+        -96
+      ],
+      "id": "f3ccebc4-be3d-44c3-80b9-4a00331899ab",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "products",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1.1,
+      "position": [
+        -96,
+        -96
+      ],
+      "id": "da4c8f9e-36ff-4b58-bb1e-c3a021366e89",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ed1bb2b2-541d-409f-a3ba-9c6defe0c2fe",
+              "name": "title",
+              "value": "={{ $json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "891634cb-6d8e-4043-a345-ea0fe94eb892",
+              "name": "price",
+              "value": "={{ $json.price }}",
+              "type": "number"
+            },
+            {
+              "id": "c8c315fc-8f41-4a7c-a48c-71edef02a667",
+              "name": "stock",
+              "value": "={{ $json.stock }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        64,
+        -96
+      ],
+      "id": "ef10669d-ff68-4f2f-9bb9-d83806777c1d",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "bdc1c728-02cf-4104-9bd8-fac1c11e5f38",
+              "leftValue": "={{ $json.stock }}",
+              "rightValue": 10,
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.4,
+      "position": [
+        224,
+        -96
+      ],
+      "id": "d3235baf-f624-4e60-a904-7b62aa24aab5",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "chatId": "-1004350235128",
+        "text": "=این محصولات باید تامین موجودی شوند.\n{{ $json.title }}\n{{ $json.price }}\n{{ $json.stock }}\n",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        400,
+        -96
+      ],
+      "id": "6952db68-595f-4c4f-8d5a-be2bd0dc2e39",
+      "name": "Send a text message",
+      "webhookId": "f2a75142-584d-47db-9b06-5bbd36dca00a",
+      "credentials": {
+        "telegramApi": {
+          "id": "YDoKWSgBjplstbp5",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "bdddafdb-936f-4336-808c-b4d0a748a32d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8c9ede47b845c857073d183a5bab56d27c163bd53edc166a405cf44747b960aa"
+  },
+  "nodeGroups": [],
+  "id": "5Oo0inq8sqcU2HfB",
+  "tags": []
+}

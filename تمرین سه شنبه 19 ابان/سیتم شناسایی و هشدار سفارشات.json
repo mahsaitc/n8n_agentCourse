@@ -1,0 +1,160 @@
+{
+  "name": "سیتم شناسایی و هشدار سفارشات",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -384,
+        -32
+      ],
+      "id": "1c1a105f-4833-4697-b99a-ff2f4ced2149",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://dummyjson.com/carts",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -160,
+        -32
+      ],
+      "id": "5e600174-c2ca-4e72-8465-14334f59a9ce",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "carts",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1.1,
+      "position": [
+        64,
+        -32
+      ],
+      "id": "17bd89f0-154c-473e-8f4a-1d9a4d64d469",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "62816675-c7a2-49bf-a43a-d09a1f652ed2",
+              "leftValue": "={{ $json.products[0].total }}",
+              "rightValue": 500,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.4,
+      "position": [
+        288,
+        -32
+      ],
+      "id": "cb8553aa-3a37-44ee-9ce0-f7cb2b14e83d",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "chatId": "-1004350235128",
+        "text": "=این خریدها بیش از 500 دلار بوده اند رسیدگی سریعتر بفرمایید :\n{{ $json.products[0].id }}\n{{ $json.products[0].title }}\n{{ $json.products[0].total }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        512,
+        -32
+      ],
+      "id": "fbc87b3c-8911-4cb3-8f59-8dd733c22925",
+      "name": "Send a text message",
+      "webhookId": "6ebf2155-de4e-4f4d-a3c8-3f16ea7dbbb9",
+      "credentials": {
+        "telegramApi": {
+          "id": "YDoKWSgBjplstbp5",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "2286ba70-cd46-4519-b19d-666e7c70423d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8c9ede47b845c857073d183a5bab56d27c163bd53edc166a405cf44747b960aa"
+  },
+  "nodeGroups": [],
+  "id": "G3BMJhjNK0KqyfHr",
+  "tags": []
+}

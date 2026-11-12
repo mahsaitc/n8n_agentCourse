@@ -1,0 +1,252 @@
+{
+  "name": "سناریو1 فروشگاه اینترنتی",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -432,
+        -16
+      ],
+      "id": "10a26084-6cf0-493e-8a61-507b0c348d90",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://dummyjson.com/products",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -208,
+        -16
+      ],
+      "id": "61742dad-8960-479b-95d3-e624c44e4abf",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "products",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1.1,
+      "position": [
+        -48,
+        -16
+      ],
+      "id": "5d1920e4-70b4-4480-bb5b-aa3f09ef615d",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "76a83c46-b5bb-4881-8330-c0b59b3099f8",
+              "name": "title",
+              "value": "={{ $json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "4dcc6900-1a6b-4bd2-955a-12839d923909",
+              "name": "price",
+              "value": "={{ $json.price }}",
+              "type": "number"
+            },
+            {
+              "id": "eea5737b-4ba1-4846-91b8-a7a6faa5e5ce",
+              "name": "rating",
+              "value": "={{ $json.rating }}",
+              "type": "number"
+            },
+            {
+              "id": "294aa9aa-12e6-4b9b-989a-5968782c9985",
+              "name": "stock",
+              "value": "={{ $json.stock }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        128,
+        -16
+      ],
+      "id": "292c10f0-809b-4029-8250-517715454689",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "85edbada-e09f-42af-96a0-56aa9e6fd76e",
+              "leftValue": "={{ $json.price }}",
+              "rightValue": 100,
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            },
+            {
+              "id": "bdc1c728-02cf-4104-9bd8-fac1c11e5f38",
+              "leftValue": "={{ $json.stock }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            },
+            {
+              "id": "8f76340f-a0b0-43fa-8cd0-65c1aa054722",
+              "leftValue": "={{ $json.rating }}",
+              "rightValue": 4,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.4,
+      "position": [
+        304,
+        0
+      ],
+      "id": "679d0691-dc92-44fa-9362-01e82cf46752",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "sortFieldsUi": {
+          "sortField": [
+            {
+              "fieldName": "rating",
+              "order": "descending"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.sort",
+      "typeVersion": 1,
+      "position": [
+        448,
+        0
+      ],
+      "id": "8c7cf639-5571-43ad-997b-e83d88b7d516",
+      "name": "Sort"
+    },
+    {
+      "parameters": {
+        "maxItems": 5
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        592,
+        0
+      ],
+      "id": "307ca8b2-1a38-4b43-91de-c3e7a0982c36",
+      "name": "Limit"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Sort",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sort": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "d8d7f6fb-80bf-45a2-93f1-9d33fa60a607",
+  "meta": {
+    "instanceId": "8c9ede47b845c857073d183a5bab56d27c163bd53edc166a405cf44747b960aa"
+  },
+  "nodeGroups": [],
+  "id": "CpzhNoZptb92KxR0",
+  "tags": []
+}

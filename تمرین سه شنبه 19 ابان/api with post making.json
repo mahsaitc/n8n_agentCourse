@@ -1,0 +1,115 @@
+{
+  "name": "api with post making",
+  "nodes": [
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        96,
+        0
+      ],
+      "id": "ee6b64a3-1528-4a69-a650-4740b70e7a4b",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "write_apisheet",
+        "authentication": "basicAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.2,
+      "position": [
+        -272,
+        0
+      ],
+      "id": "7ad368db-c588-4de9-aaf7-272989c09a70",
+      "name": "post add student webhook",
+      "webhookId": "c0cd6e6a-81b7-480f-9677-c7c276b7ed7a",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "GFy8AFWaILn3JWw2",
+          "name": "mahsaitc"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "12Taf2okzHkrbsUtKlYs0I3l2k1uKEWo0bsd5CP_fItg",
+          "mode": "list",
+          "cachedResultName": "API USERS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12Taf2okzHkrbsUtKlYs0I3l2k1uKEWo0bsd5CP_fItg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12Taf2okzHkrbsUtKlYs0I3l2k1uKEWo0bsd5CP_fItg/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -80,
+        0
+      ],
+      "id": "2e5ce864-f9b0-46c8-9a77-17e225b46a58",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "bvCLRxyHIuDBYlQu",
+          "name": "mahsaitc53"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "post add student webhook": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "e0ee2d8f-93fa-43df-9148-f9b4dd48d6b6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8c9ede47b845c857073d183a5bab56d27c163bd53edc166a405cf44747b960aa"
+  },
+  "nodeGroups": [],
+  "id": "FT5bOoiaZt6QE5th",
+  "tags": []
+}

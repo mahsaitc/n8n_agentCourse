@@ -1,0 +1,145 @@
+{
+  "name": "گرفتن آخرین قیمت طلا و دلار",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -144,
+        0
+      ],
+      "id": "9bc25a4b-1aae-4c0b-8d5e-52b2c839c374",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://nerkhara.com/api/v1/latest.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        80,
+        0
+      ],
+      "id": "6537e67a-53bc-4a6e-b656-32c72c17760e",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e78937e6-1c0d-4e23-bd64-31b0f3118c41",
+              "name": "usd-price",
+              "value": "={{ $json.items[0].price }}",
+              "type": "number"
+            },
+            {
+              "id": "bf51b1ba-0847-432f-9b1a-365f77f20681",
+              "name": "gold-price",
+              "value": "={{ $json.items[47].price }}",
+              "type": "number"
+            },
+            {
+              "id": "2091ae17-f028-4180-abbf-7e6740aac419",
+              "name": "updated-at",
+              "value": "={{ $json.items[47].updated_utc }}",
+              "type": "string"
+            },
+            {
+              "id": "775984fb-3d36-4a88-bc42-0622d18c8f82",
+              "name": "message",
+              "value": "={{  '📊 آخرین قیمت به‌روزشده طلا و دلار در بازار آزاد تهران\\n\\n' + '📅 تاریخ و زمان به‌روزرسانی: ' + $json.items[47].updated_utc + '\\n\\n' + '💵 قیمت دلار آمریکا: ' + $json.items[0].price.toLocaleString('en-US') + ' تومان\\n' + '🥇 قیمت طلا: ' + $json.items[47].price.toLocaleString('en-US') + ' تومان\\n\\n' + '📌 این اطلاعات مربوط به آخرین نرخ ثبت‌شده در بازار آزاد تهران است.' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        304,
+        0
+      ],
+      "id": "a7fb98ae-db63-4f46-a817-4db1ff835f5b",
+      "name": "prepare telegram message"
+    },
+    {
+      "parameters": {
+        "chatId": "-1004350235128",
+        "text": "={{ $json.message }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        528,
+        0
+      ],
+      "id": "b183d56e-2bab-456d-a586-19cf8d364473",
+      "name": "Send a text message",
+      "webhookId": "42a53e6b-9a2e-474c-a524-b32d92e8e8b2",
+      "credentials": {
+        "telegramApi": {
+          "id": "YDoKWSgBjplstbp5",
+          "name": "agent_08"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "prepare telegram message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "prepare telegram message": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "83c6e4e6-d21a-40e1-8e9c-df3b25125c6e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8c9ede47b845c857073d183a5bab56d27c163bd53edc166a405cf44747b960aa"
+  },
+  "nodeGroups": [],
+  "id": "irnOYdtxS0cG06i3",
+  "tags": []
+}

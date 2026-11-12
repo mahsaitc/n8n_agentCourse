@@ -1,0 +1,187 @@
+{
+  "name": "ربات تلگرامی",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "id": "b6573d23-ad12-47ef-a9a9-7fb9209db4d0",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        -640,
+        16
+      ],
+      "webhookId": "47e46ffb-5aab-4ce4-8984-a5c336a1705f",
+      "credentials": {
+        "telegramApi": {
+          "id": "YDoKWSgBjplstbp5",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {
+          "systemMessage": "توتو یک بات تلگرامی هستی که میخواهی سوالات کاربران سایت را در مورد طب سوزنی و امبدینگ رو جواب بدهی.من پزشک و درمانگر طب سوزنی و امبدینگ هستم و در مطبم در    شیراز خیابان زند کوچه41 ساختمان سینا واقع شده است و روزهای زوج از ساعت 6 تا 9 شب بیماران را ویزیت و درمان میکنم\nبا اطلاعاتی که داری یک خوشامدگویی خوب داشته باش.\noutput only plain text.\ndo not use html tags."
+        }
+      },
+      "id": "f7d3b3b7-5e28-4e8e-b048-d8498ad066fe",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -352,
+        16
+      ]
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash",
+        "options": {}
+      },
+      "id": "395e2380-b449-4ce1-9e6a-01d8ed54d3df",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        -432,
+        192
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Telegram Trigger').item.json.message.chat.id }}"
+      },
+      "id": "270cdc99-068d-4ec2-96cb-7962e2834ac4",
+      "name": "Simple Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        -288,
+        240
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "4362c393-58b7-40ff-a395-b86154f677de",
+      "name": "Calculator",
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        -160,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "ca307f0e-d418-497f-8893-b7cc337b5cd0",
+      "name": "Send a text message",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        48,
+        16
+      ],
+      "webhookId": "226d6c69-3657-4a18-936b-776daf47ad78",
+      "credentials": {
+        "telegramApi": {
+          "id": "YDoKWSgBjplstbp5",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "f4c6d480-3ff3-47ed-8bb4-99b406249079",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8c9ede47b845c857073d183a5bab56d27c163bd53edc166a405cf44747b960aa"
+  },
+  "nodeGroups": [],
+  "id": "YeVTiwYGTpuSvHZp",
+  "tags": []
+}

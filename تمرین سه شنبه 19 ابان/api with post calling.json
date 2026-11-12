@@ -1,0 +1,195 @@
+{
+  "name": "api with post calling",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "65f1828e-dea7-40f9-803f-779b38ee6dd0",
+              "name": "id",
+              "value": "6",
+              "type": "string"
+            },
+            {
+              "id": "83677d0c-2130-43a2-86ec-b2c61f2dab62",
+              "name": "name",
+              "value": "مهین",
+              "type": "string"
+            },
+            {
+              "id": "22d3e7ee-0f24-47ba-9ebd-b706e9c1c6dd",
+              "name": "age",
+              "value": "11",
+              "type": "string"
+            },
+            {
+              "id": "b6d87f49-f68f-45a8-a881-a3f8e6a0edc0",
+              "name": "course",
+              "value": "علوم",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "7eff676d-c919-4186-b1f0-e648d70579b6",
+      "name": "create new student",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        -848,
+        -16
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://hasanimahi.app.n8n.cloud/webhook/write_apisheet",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "options": {}
+      },
+      "id": "75b7b05b-cc98-4090-9dbb-21120568f5c8",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -608,
+        -16
+      ],
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "GFy8AFWaILn3JWw2",
+          "name": "mahsaitc"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "12Taf2okzHkrbsUtKlYs0I3l2k1uKEWo0bsd5CP_fItg",
+          "mode": "list",
+          "cachedResultName": "API USERS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12Taf2okzHkrbsUtKlYs0I3l2k1uKEWo0bsd5CP_fItg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12Taf2okzHkrbsUtKlYs0I3l2k1uKEWo0bsd5CP_fItg/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $(\"create new student\").item.json.id }}",
+            "name": "={{ $(\"create new student\").item.json.name }}",
+            "age": "={{ $(\"create new student\").item.json.age }}",
+            "course": "={{ $(\"create new student\").item.json.course }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "age",
+              "displayName": "age",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "course",
+              "displayName": "course",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "72022fb7-82a1-44e5-9bf7-488a19d4766e",
+      "name": "Append row in sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -368,
+        -16
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "bvCLRxyHIuDBYlQu",
+          "name": "mahsaitc53"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "create new student": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "7021fa03-3efa-46a8-9b60-4b00a64c0bd4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8c9ede47b845c857073d183a5bab56d27c163bd53edc166a405cf44747b960aa"
+  },
+  "nodeGroups": [],
+  "id": "e0W3l79vtQYTAKOG",
+  "tags": []
+}
